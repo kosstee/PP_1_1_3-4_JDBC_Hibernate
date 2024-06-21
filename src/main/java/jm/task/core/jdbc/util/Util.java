@@ -41,7 +41,7 @@ public class Util {
             sessionFactory.close();
         }
 
-        if (Objects.nonNull(dataSource)) {
+        if (Objects.nonNull(registry)) {
             StandardServiceRegistryBuilder.destroy(registry);
         }
 
@@ -56,7 +56,7 @@ public class Util {
             registry = new StandardServiceRegistryBuilder().applySettings(hibernateConfig.getProperties()).build();
             sessionFactory = hibernateConfig.buildSessionFactory(registry);
         } catch (Exception e) {
-            if (registry != null) {
+            if (Objects.nonNull(registry)) {
                 StandardServiceRegistryBuilder.destroy(registry);
             }
             throw new RuntimeException(e);
