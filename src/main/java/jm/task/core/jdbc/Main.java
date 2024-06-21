@@ -1,10 +1,17 @@
 package jm.task.core.jdbc;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import jm.task.core.jdbc.service.UserService;
 import jm.task.core.jdbc.service.UserServiceImpl;
+import jm.task.core.jdbc.util.Util;
+import org.slf4j.LoggerFactory;
 
 public class Main {
     public static void main(String[] args) {
+
+        Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        logger.setLevel(Level.INFO);
 
         UserService userService = new UserServiceImpl();
         userService.createUsersTable();
@@ -15,5 +22,7 @@ public class Main {
         userService.getAllUsers().forEach(System.out::println);
         userService.cleanUsersTable();
         userService.dropUsersTable();
+
+        Util.shutdown();
     }
 }
