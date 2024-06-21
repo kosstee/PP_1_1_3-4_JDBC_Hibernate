@@ -11,24 +11,25 @@ import java.util.Objects;
 
 public class UserDaoHibernateImpl implements UserDao {
 
+    private Transaction transaction;
+
     public UserDaoHibernateImpl() {
     }
 
     @Override
     public void createUsersTable() {
-        Transaction tx = null;
         try (var session = Util.getSession()) {
-            tx = session.beginTransaction();
+            transaction = session.beginTransaction();
             session.createNativeQuery("""
                     CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(255) NOT NULL,
                     lastName VARCHAR(255) NOT NULL,
                     age TINYINT UNSIGNED)""").executeUpdate();
-            tx.commit();
+            transaction.commit();
         } catch (HibernateException e) {
-            if (Objects.nonNull(tx)) {
-                tx.rollback();
+            if (Objects.nonNull(transaction)) {
+                transaction.rollback();
             }
             throw new RuntimeException(e);
         }
@@ -36,14 +37,13 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        Transaction tx = null;
         try (var session = Util.getSession()) {
-            tx = session.beginTransaction();
+            transaction = session.beginTransaction();
             session.createNativeQuery("DROP TABLE IF EXISTS users").executeUpdate();
-            tx.commit();
+            transaction.commit();
         } catch (HibernateException e) {
-            if (Objects.nonNull(tx)) {
-                tx.rollback();
+            if (Objects.nonNull(transaction)) {
+                transaction.rollback();
             }
             throw new RuntimeException(e);
         }
@@ -52,15 +52,14 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void saveUser(String name, String lastName, byte age) {
         User user = new User(name, lastName, age);
-        Transaction tx = null;
         try (var session = Util.getSession()) {
-            tx = session.beginTransaction();
+            transaction = session.beginTransaction();
             session.persist(user);
-            tx.commit();
+            transaction.commit();
             System.out.println("User с именем — " + name + " добавлен в базу данных");
         } catch (HibernateException e) {
-            if (Objects.nonNull(tx)) {
-                tx.rollback();
+            if (Objects.nonNull(transaction)) {
+                transaction.rollback();
             }
             throw new RuntimeException(e);
         }
@@ -68,14 +67,13 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        Transaction tx = null;
         try (var session = Util.getSession()) {
-            tx = session.beginTransaction();
+            transaction = session.beginTransaction();
             session.remove(session.get(User.class, id));
-            tx.commit();
+            transaction.commit();
         } catch (HibernateException e) {
-            if (Objects.nonNull(tx)) {
-                tx.rollback();
+            if (Objects.nonNull(transaction)) {
+                transaction.rollback();
             }
             throw new RuntimeException(e);
         }
@@ -95,14 +93,13 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        Transaction tx = null;
         try (var session = Util.getSession()) {
-            tx = session.beginTransaction();
+            transaction = session.beginTransaction();
             getAllUsers().forEach(session::remove);
-            tx.commit();
+            transaction.commit();
         } catch (HibernateException e) {
-            if (Objects.nonNull(tx)) {
-                tx.rollback();
+            if (Objects.nonNull(transaction)) {
+                transaction.rollback();
             }
             throw new RuntimeException(e);
         }
